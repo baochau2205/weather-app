@@ -26,13 +26,6 @@ This project fetches real-time weather data using the Open-Meteo API and display
 
 ---
 
-## APIs Used
-
-- Geocoding API: https://geocoding-api.open-meteo.com/
-- Weather API: https://api.open-meteo.com/
-
----
-
 ## Project Structure
 
 index.html  
