@@ -3,6 +3,8 @@
 A simple weather application built with HTML, CSS, and JavaScript.  
 This project fetches real-time weather data using the Open-Meteo API and displays current weather, hourly timeline, and 7-day forecast.
 
+Live Demo: https://baochau2205.github.io/weather-app/
+
 ---
 
 ## Features
