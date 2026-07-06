@@ -3,8 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Weather App</title>
+    <title>Modern Weather Dashboard</title>
     <link rel="stylesheet" href="style.css" />
+    <meta name="description" 
+    content="A responsive weather dashboard built with HTML, CSS, and JavaScript using the OpenWeather API." />
   </head>
   <body>
     <div class="app-shell">
@@ -12,10 +14,11 @@
         <div class="hero-top">
           <div>
             <p class="eyebrow">Weather app</p>
-            <h1>Weather by city</h1>
+            <h1>Modern Weather Dashboard</h1>
           </div>
           <form id="weather-form" class="search-bar">
-            <input id="city-input" type="text" placeholder="Enter a city name" />
+            <label class="sr-only" for="city-input">City name</label>
+            <input id="city-input" type="text" placeholder="Enter a city name" autocomplete="off" spellcheck="false" />
             <button type="submit">Search</button>
           </form>
         </div>

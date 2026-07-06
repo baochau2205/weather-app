@@ -5,12 +5,30 @@ const forecastList = document.getElementById('forecast-list');
 const weatherForm = document.getElementById('weather-form');
 const cityInput = document.getElementById('city-input');
 
-const favoriteCities = ['Hanoi', 'Ho Chi Minh City', 'Da Nang', 'London', 'New York'];
+const favoriteCities = [
+  'Hanoi',
+  'Ho Chi Minh City',
+  'Da Nang',
+  'London',
+  'New York'
+];
+
+
+
+function saveLastCity(city) {
+  localStorage.setItem('lastCity', city);
+}
+
+function getLastCity() {
+  return localStorage.getItem('lastCity');
+}
+
+
 
 function getWeatherIcon(code, isDay = true) {
-  const iconMap = {
+  const map = {
     0: isDay ? '☀️' : '🌙',
-    1: isDay ? '🌤️' : '🌙',
+    1: '🌤️',
     2: '⛅',
     3: '☁️',
     45: '🌫️',
@@ -31,12 +49,11 @@ function getWeatherIcon(code, isDay = true) {
     96: '⛈️',
     99: '⛈️',
   };
-
-  return iconMap[code] || '🌈';
+  return map[code] || '🌈';
 }
 
 function getWeatherLabel(code) {
-  const labelMap = {
+  const map = {
     0: 'Clear',
     1: 'Mostly clear',
     2: 'Partly cloudy',
@@ -44,8 +61,8 @@ function getWeatherLabel(code) {
     45: 'Fog',
     48: 'Dense fog',
     51: 'Light drizzle',
-    53: 'Light drizzle',
-    55: 'Moderate drizzle',
+    53: 'Drizzle',
+    55: 'Heavy drizzle',
     61: 'Rain',
     63: 'Heavy rain',
     65: 'Very heavy rain',
@@ -59,40 +76,44 @@ function getWeatherLabel(code) {
     96: 'Thunderstorm',
     99: 'Thunderstorm',
   };
-
-  return labelMap[code] || 'Varied weather';
+  return map[code] || 'Unknown';
 }
 
 function getWeatherTheme(code) {
   if (code >= 95) return 'storm';
   if (code >= 61 && code <= 82) return 'rainy';
-  if (code === 71 || code === 73 || code === 75) return 'snow';
-  if (code >= 3 && code <= 45) return 'cloudy';
+  if ([71, 73, 75].includes(code)) return 'snow';
+  if (code >= 45 && code <= 48) return 'cloudy';
   return 'sunny';
 }
 
-function formatDateTime(date, timeZone) {
-  return new Intl.DateTimeFormat('en-US', {
-    timeZone,
-    weekday: 'long',
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(date);
+
+
+function setLoading() {
+  currentWeather.innerHTML = `<p>Loading weather...</p>`;
+  timeline.innerHTML = '';
+  forecastList.innerHTML = '';
 }
+
+function setError(msg) {
+  currentWeather.innerHTML = `<p class="error">${msg}</p>`;
+}
+
+
 
 function buildCityPills() {
   cityPills.innerHTML = favoriteCities
-    .map(
-      (city) => `<button class="city-pill" data-city="${city}">${city}</button>`
-    )
+    .map(city => `<button class="city-pill" data-city="${city}">${city}</button>`)
     .join('');
 
-  cityPills.querySelectorAll('.city-pill').forEach((button) => {
-    button.addEventListener('click', () => {
-      fetchWeather(button.dataset.city);
+  cityPills.querySelectorAll('.city-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      fetchWeather(btn.dataset.city);
     });
   });
 }
+
+
 
 function renderCurrentWeather(data) {
   const { location, current, timezone } = data;
@@ -104,138 +125,166 @@ function renderCurrentWeather(data) {
         <span class="city-name">${location.name}</span>
         <span class="country-chip">${location.country}</span>
       </div>
-      <p>${formatDateTime(now, timezone)}</p>
-      <div class="current-temp">${Math.round(current.temperature)}°C</div>
-      <div class="current-meta">
-        <span>🌬️ Wind ${current.windSpeed} km/h</span>
-        <span>☔ Rain ${current.precipitation}%</span>
+
+      <p>${new Intl.DateTimeFormat('en-US', {
+        timeZone: timezone,
+        weekday: 'long',
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(now)}</p>
+
+      <div class="current-temp">
+        ${Math.round(current.temperature)}°C
       </div>
-      <p>${getWeatherLabel(current.weatherCode)} · ${current.isDay ? 'Daytime' : 'Nighttime'}</p>
+
+      <div class="current-meta">
+        <span>🌬️ ${current.windSpeed} km/h</span>
+        <span>☔ ${current.precipitation}%</span>
+      </div>
+
+      <p>
+        ${getWeatherLabel(current.weatherCode)}
+        · ${current.isDay ? 'Day' : 'Night'}
+      </p>
     </div>
-    <div class="current-icon">${getWeatherIcon(current.weatherCode, current.isDay)}</div>
+
+    <div class="current-icon">
+      ${getWeatherIcon(current.weatherCode, current.isDay)}
+    </div>
   `;
 
   document.body.dataset.weather = getWeatherTheme(current.weatherCode);
 }
 
-function renderTimeline(hourlyData) {
-  const slots = [
-    { label: 'Morning', hour: 6 },
-    { label: 'Noon', hour: 12 },
-    { label: 'Evening', hour: 18 },
-    { label: 'Night', hour: 0 },
-  ];
 
-  const labels = hourlyData.time.map((value) => new Date(value));
-  timeline.innerHTML = slots
-    .map((slot) => {
-      const index = labels.findIndex((date) => date.getHours() >= slot.hour);
-      const pickIndex = index === -1 ? labels.length - 1 : index;
-      const temp = Math.round(hourlyData.temperature[pickIndex]);
-      const rain = Math.round(hourlyData.precipitation[pickIndex]);
-      const icon = getWeatherIcon(hourlyData.weatherCode[pickIndex], slot.hour < 18);
-      return `
-        <div class="timeline-item">
-          <div>${slot.label}</div>
-          <div>${icon}</div>
-          <strong>${temp}°C</strong>
-          <small>${rain}% rain</small>
-        </div>
-      `;
-    })
-    .join('');
+
+function renderTimeline(hourly) {
+  const slots = [6, 12, 18, 0];
+
+  timeline.innerHTML = slots.map(hour => {
+    const index = hourly.time.findIndex(t => {
+      const d = new Date(t);
+      return d.getHours() === hour;
+    });
+
+    const i = index === -1 ? 0 : index;
+
+    return `
+      <div class="timeline-item">
+        <div>${hour === 6 ? 'Morning' : hour === 12 ? 'Noon' : hour === 18 ? 'Evening' : 'Night'}</div>
+        <div>${getWeatherIcon(hourly.weatherCode[i])}</div>
+        <strong>${Math.round(hourly.temperature[i])}°C</strong>
+        <small>${Math.round(hourly.precipitation[i])}%</small>
+      </div>
+    `;
+  }).join('');
 }
 
-function renderForecast(dailyData) {
-  forecastList.innerHTML = dailyData.time
-    .slice(0, 7)
-    .map((dateString, index) => {
-      const dayName = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(new Date(dateString));
-      const high = Math.round(dailyData.temperatureMax[index]);
-      const low = Math.round(dailyData.temperatureMin[index]);
-      const rain = dailyData.precipitationProbability[index];
-      const icon = getWeatherIcon(dailyData.weatherCode[index]);
-      return `
-        <div class="forecast-card">
-          <div class="forecast-icon">${icon}</div>
-          <div>
-            <strong>${dayName}</strong>
-            <div>${getWeatherLabel(dailyData.weatherCode[index])}</div>
-          </div>
-          <div class="forecast-temps">
-            <strong>${high}°</strong>
-            <span>${low}°</span>
-            <span>· ${rain}%</span>
-          </div>
+
+
+function renderForecast(daily) {
+  forecastList.innerHTML = daily.time.slice(0, 7).map((date, i) => {
+    const day = new Intl.DateTimeFormat('en-US', { weekday: 'short' })
+      .format(new Date(date));
+
+    return `
+      <div class="forecast-card">
+        <div class="forecast-icon">
+          ${getWeatherIcon(daily.weatherCode[i])}
         </div>
-      `;
-    })
-    .join('');
+
+        <div>
+          <strong>${day}</strong>
+          <div>${getWeatherLabel(daily.weatherCode[i])}</div>
+        </div>
+
+        <div class="forecast-temps">
+          <strong>${Math.round(daily.temperatureMax[i])}°</strong>
+          <span>${Math.round(daily.temperatureMin[i])}°</span>
+          <span>· ${daily.precipitationProbability[i]}%</span>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
-async function fetchWeather(cityName) {
+
+
+async function fetchWeather(city) {
   try {
-    const geoResponse = await fetch(
-      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=vi&format=json`
-    );
-    const geoData = await geoResponse.json();
+    setLoading();
 
-    if (!geoData.results?.length) {
-      throw new Error('Không tìm thấy thành phố.');
+    const geoRes = await fetch(
+      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
+    );
+
+    const geo = await geoRes.json();
+
+    if (!geo.results?.length) {
+      throw new Error('City not found');
     }
 
-    const location = geoData.results[0];
-    const forecastResponse = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,weather_code,is_day,precipitation,wind_speed_10m&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=7`
+    const loc = geo.results[0];
+
+    const weatherRes = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${loc.latitude}&longitude=${loc.longitude}&current=temperature_2m,weather_code,is_day,precipitation,wind_speed_10m&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=7`
     );
-    const forecastData = await forecastResponse.json();
+
+    const data = await weatherRes.json();
 
     const current = {
-      temperature: forecastData.current.temperature_2m,
-      weatherCode: forecastData.current.weather_code,
-      isDay: forecastData.current.is_day === 1,
-      precipitation: forecastData.current.precipitation,
-      windSpeed: forecastData.current.wind_speed_10m,
-    };
-
-    const hourly = {
-      time: forecastData.hourly.time,
-      temperature: forecastData.hourly.temperature_2m,
-      precipitation: forecastData.hourly.precipitation_probability,
-      weatherCode: forecastData.hourly.weather_code,
-    };
-
-    const daily = {
-      time: forecastData.daily.time,
-      weatherCode: forecastData.daily.weather_code,
-      temperatureMax: forecastData.daily.temperature_2m_max,
-      temperatureMin: forecastData.daily.temperature_2m_min,
-      precipitationProbability: forecastData.daily.precipitation_probability_max,
+      temperature: data.current.temperature_2m,
+      weatherCode: data.current.weather_code,
+      isDay: data.current.is_day === 1,
+      precipitation: data.current.precipitation,
+      windSpeed: data.current.wind_speed_10m,
     };
 
     renderCurrentWeather({
       location: {
-        name: location.name,
-        country: location.country,
+        name: loc.name,
+        country: loc.country,
       },
       current,
-      timezone: forecastData.timezone || 'auto',
+      timezone: data.timezone,
     });
 
-    renderTimeline(hourly);
-    renderForecast(daily);
-  } catch (error) {
-    currentWeather.innerHTML = `<p class="error">${error.message}</p>`;
-    timeline.innerHTML = '';
-    forecastList.innerHTML = '';
+    renderTimeline({
+      time: data.hourly.time,
+      temperature: data.hourly.temperature_2m,
+      precipitation: data.hourly.precipitation_probability,
+      weatherCode: data.hourly.weather_code,
+    });
+
+    renderForecast({
+      time: data.daily.time,
+      weatherCode: data.daily.weather_code,
+      temperatureMax: data.daily.temperature_2m_max,
+      temperatureMin: data.daily.temperature_2m_min,
+      precipitationProbability: data.daily.precipitation_probability_max,
+    });
+
+    saveLastCity(city);
+
+  } catch (err) {
+    setError(err.message);
   }
 }
 
-weatherForm.addEventListener('submit', (event) => {
-  event.preventDefault();
-  fetchWeather(cityInput.value.trim() || 'Hanoi');
+
+
+weatherForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const city = cityInput.value.trim();
+  if (city) fetchWeather(city);
+
   cityInput.value = '';
 });
 
+
+
 buildCityPills();
-fetchWeather('Hanoi');
+
+const lastCity = getLastCity();
+fetchWeather(lastCity || 'Hanoi');

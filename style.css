@@ -8,6 +8,11 @@
   --accent: #ffd166;
   --accent-2: #4cc9f0;
   --shadow: 0 20px 45px rgba(0, 0, 0, 0.28);
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-pill: 999px;
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
 }
 
 * {
@@ -20,7 +25,7 @@ body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: var(--text);
   background: linear-gradient(135deg, #0f172a, #1d4ed8);
-  transition: background 0.6s ease, color 0.6s ease;
+  transition: background var(--transition-normal), color var(--transition-normal);
 }
 
 body[data-weather="sunny"] {
@@ -54,7 +59,7 @@ body[data-weather="snow"] {
 .hero-card,
 .panel {
   border: 1px solid rgba(255, 255, 255, 0.17);
-  border-radius: 24px;
+  border-radius: var(--radius-lg);
   backdrop-filter: blur(18px);
   box-shadow: var(--shadow);
 }
@@ -98,22 +103,42 @@ h1 {
 }
 
 .search-bar input {
-  min-width: 240px;
-  border: none;
-  padding: 12px 14px;
-  border-radius: 999px;
-  font-size: 0.98rem;
-  outline: none;
+    min-width: 240px;
+    border: none;
+    padding: 12px 14px;
+    border-radius: var(--radius-pill);
+    font-size: 0.98rem;
+    outline: none;
+    transition: box-shadow var(--transition-fast);
+}
+
+.search-bar input:focus-visible {
+    box-shadow: 0 0 0 4px rgba(76, 201, 240, 0.35);
 }
 
 .search-bar button {
-  border: none;
-  padding: 12px 18px;
-  border-radius: 999px;
-  background: linear-gradient(120deg, var(--accent), var(--accent-2));
-  color: #04111c;
-  font-weight: 700;
-  cursor: pointer;
+    border: none;
+    padding: 12px 18px;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(120deg, var(--accent), var(--accent-2));
+    color: #04111c;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform var(--transition-fast), filter var(--transition-fast);
+}
+
+.search-bar button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.search-bar button:active {
+  transform: translateY(0);
+}
+
+.search-bar button:focus-visible {
+  outline: 3px solid rgba(76, 201, 240, 0.4);
+  outline-offset: 2px;
 }
 
 .city-pills {
@@ -128,8 +153,19 @@ h1 {
   background: rgba(255, 255, 255, 0.12);
   color: inherit;
   padding: 9px 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.city-pill:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.city-pill:focus-visible {
+  outline: 3px solid rgba(76, 201, 240, 0.4);
+  outline-offset: 2px;
 }
 
 .status-card {
@@ -138,7 +174,7 @@ h1 {
   gap: 18px;
   align-items: center;
   background: var(--panel-strong);
-  border-radius: 22px;
+  border-radius: var(--radius-lg);
   padding: 20px;
 }
 
@@ -163,7 +199,7 @@ h1 {
 .country-chip {
   background: rgba(255, 255, 255, 0.12);
   padding: 5px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   color: var(--muted);
 }
 
@@ -215,9 +251,15 @@ h1 {
 
 .timeline-item {
   padding: 12px;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.1);
   text-align: center;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.timeline-item:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .timeline-item strong {
@@ -236,8 +278,14 @@ h1 {
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.1);
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.forecast-card:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .forecast-card .forecast-icon {
