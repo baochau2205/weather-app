@@ -1,10 +1,10 @@
 :root {
   color-scheme: dark;
   --bg: #071c2d;
-  --panel: rgba(7, 24, 41, 0.78);
-  --panel-strong: rgba(10, 35, 58, 0.95);
-  --text: #f4f7fb;
-  --muted: #9fb3c8;
+  --panel: rgba(7, 24, 41, 0.82);
+  --panel-strong: rgba(10, 35, 58, 0.96);
+  --text: #f8fbff;
+  --muted: #dce9f5;
   --accent: #ffd166;
   --accent-2: #4cc9f0;
   --shadow: 0 20px 45px rgba(0, 0, 0, 0.28);
@@ -31,23 +31,43 @@ body {
 body[data-weather="sunny"] {
   background: linear-gradient(135deg, #f59e0b, #fde68a 45%, #fef3c7);
   color: #14213d;
+  --panel: rgba(255, 255, 255, 0.82);
+  --panel-strong: rgba(255, 255, 255, 0.94);
+  --muted: #4b5d74;
+  --shadow: 0 20px 45px rgba(15, 23, 42, 0.16);
 }
 
 body[data-weather="cloudy"] {
   background: linear-gradient(135deg, #475569, #64748b 60%, #cbd5e1);
+  --panel: rgba(15, 23, 42, 0.84);
+  --panel-strong: rgba(15, 23, 42, 0.96);
+  --text: #f8fbff;
+  --muted: #dce9f5;
 }
 
 body[data-weather="rainy"] {
   background: linear-gradient(135deg, #0f172a, #1d4ed8 60%, #60a5fa);
+  --panel: rgba(7, 24, 41, 0.86);
+  --panel-strong: rgba(10, 35, 58, 0.97);
+  --text: #f8fbff;
+  --muted: #dce9f5;
 }
 
 body[data-weather="storm"] {
   background: linear-gradient(135deg, #111827, #374151 60%, #4b5563);
+  --panel: rgba(7, 24, 41, 0.88);
+  --panel-strong: rgba(10, 35, 58, 0.97);
+  --text: #f8fbff;
+  --muted: #dce9f5;
 }
 
 body[data-weather="snow"] {
   background: linear-gradient(135deg, #e0f2fe, #bae6fd 50%, #f8fafc);
   color: #0f172a;
+  --panel: rgba(255, 255, 255, 0.82);
+  --panel-strong: rgba(255, 255, 255, 0.95);
+  --muted: #4b5d74;
+  --shadow: 0 20px 45px rgba(15, 23, 42, 0.14);
 }
 
 .app-shell {
@@ -109,6 +129,8 @@ h1 {
     border-radius: var(--radius-pill);
     font-size: 0.98rem;
     outline: none;
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.96);
     transition: box-shadow var(--transition-fast);
 }
 
@@ -149,18 +171,36 @@ h1 {
 }
 
 .city-pill {
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.12);
-  color: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: linear-gradient(135deg, rgba(9, 22, 36, 0.95), rgba(22, 38, 58, 0.92));
+  color: #e8f2ff;
   padding: 9px 14px;
   border-radius: var(--radius-pill);
   cursor: pointer;
-  transition: background var(--transition-fast), transform var(--transition-fast);
+  font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .city-pill:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(14, 31, 49, 0.98), rgba(29, 48, 72, 0.95));
   transform: translateY(-2px);
+}
+
+.city-pill.is-active {
+  color: #f7fbff;
+  font-weight: 700;
+  border-color: rgba(255, 255, 255, 0.24);
+  background: linear-gradient(135deg, rgba(17, 34, 53, 0.98), rgba(31, 54, 79, 0.96));
+  box-shadow: 0 10px 22px rgba(3, 12, 24, 0.24);
+}
+
+.city-pill--amber,
+.city-pill--blue,
+.city-pill--green,
+.city-pill--violet,
+.city-pill--sky {
+  color: #eaf4ff;
 }
 
 .city-pill:focus-visible {
@@ -197,10 +237,11 @@ h1 {
 }
 
 .country-chip {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.18);
   padding: 5px 10px;
   border-radius: var(--radius-pill);
-  color: var(--muted);
+  color: var(--text);
+  font-weight: 600;
 }
 
 .current-temp {

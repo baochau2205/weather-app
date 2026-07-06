@@ -6,11 +6,11 @@ const weatherForm = document.getElementById('weather-form');
 const cityInput = document.getElementById('city-input');
 
 const favoriteCities = [
-  'Hanoi',
-  'Ho Chi Minh City',
-  'Da Nang',
-  'London',
-  'New York'
+  { name: 'Hanoi', accent: 'amber' },
+  { name: 'Ho Chi Minh City', accent: 'blue' },
+  { name: 'Da Nang', accent: 'green' },
+  { name: 'London', accent: 'violet' },
+  { name: 'New York', accent: 'sky' }
 ];
 
 
@@ -101,13 +101,22 @@ function setError(msg) {
 
 
 
+function setActiveCity(city) {
+  cityPills.querySelectorAll('.city-pill').forEach(btn => {
+    const isActive = btn.dataset.city === city;
+    btn.classList.toggle('is-active', isActive);
+    btn.setAttribute('aria-pressed', String(isActive));
+  });
+}
+
 function buildCityPills() {
   cityPills.innerHTML = favoriteCities
-    .map(city => `<button class="city-pill" data-city="${city}">${city}</button>`)
+    .map(({ name, accent }) => `<button class="city-pill city-pill--${accent}" data-city="${name}" type="button">${name}</button>`)
     .join('');
 
   cityPills.querySelectorAll('.city-pill').forEach(btn => {
     btn.addEventListener('click', () => {
+      setActiveCity(btn.dataset.city);
       fetchWeather(btn.dataset.city);
     });
   });
@@ -239,6 +248,8 @@ async function fetchWeather(city) {
       precipitation: data.current.precipitation,
       windSpeed: data.current.wind_speed_10m,
     };
+
+    setActiveCity(city);
 
     renderCurrentWeather({
       location: {
