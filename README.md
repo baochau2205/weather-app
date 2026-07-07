@@ -5,6 +5,10 @@ This project fetches real-time weather data using the Open-Meteo API and display
 
 Live Demo: https://baochau2205.github.io/weather-app/
 
+Prevew 
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/2e1fa69d-b393-4ba5-ac70-bcd8afdef5c0" />
+
+
 ---
 
 ## Features
